@@ -26,13 +26,13 @@ class Fluent::PingMessageInput < Fluent::Input
 
   def loop
     @last_checked = Fluent::Engine.now
-    while true
+    loop {
       sleep 0.5
       if Fluent::Engine.now - @last_checked >= @interval
         @last_checked = Fluent::Engine.now
         Fluent::Engine.emit(@tag, Fluent::Engine.now, {'payload' => @payload})
       end
-    end
+    }
   end
 
 end
