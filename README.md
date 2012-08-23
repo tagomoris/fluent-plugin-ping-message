@@ -1,29 +1,38 @@
-# Fluent::Plugin::Ping::Message
+# fluent-plugin-ping-message
 
-TODO: Write a gem description
+Fluentd plugin to generate ping messages for monitoring of heatbeats.
 
-## Installation
+## Configuration
 
-Add this line to your application's Gemfile:
+### PingMessageInput
 
-    gem 'fluent-plugin-ping-message'
+To generate 1 ping message per 60seconds(default):
 
-And then execute:
+    <source>
+      type ping_message
+    </source>
+    #=> tag: 'ping'
+    #   message: {'data' => 'your.hostname.local'}
 
-    $ bundle
+Change ping message interval into 30 seconds, and fix tag and 'data':
 
-Or install it yourself as:
+    <source>
+      type ping_message
+      tag ping.webserver
+      interval 30
+      data ping message from ${hostname}
+    </source>
+    #=> tag: 'ping.webserver'
+    #   message: {'data' => 'ping message from your.hostname.local'}
 
-    $ gem install fluent-plugin-ping-message
+## TODO
 
-## Usage
+* 'PingMessageWatchdogOutput'
+  * accepts ping messages and notify hosts ping messages cannot be found
 
-TODO: Write usage instructions here
+## Copyright
 
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+* Copyright
+  * Copyright (c) 2012- TAGOMORI Satoshi (tagomoris)
+* License
+  * Apache License, Version 2.0
