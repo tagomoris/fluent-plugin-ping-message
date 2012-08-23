@@ -7,11 +7,11 @@ class Fluent::PingMessageInput < Fluent::Input
 
   config_param :tag, :string, :default => 'ping'
   config_param :interval, :integer, :default => 60
-  config_param :payload, :string, :default => 'ping'
+  config_param :data, :string, :default => `hostname`.chomp
 
   def start
     super
-    start_loop
+    start_pingloop
   end
 
   def shutdown
@@ -20,17 +20,17 @@ class Fluent::PingMessageInput < Fluent::Input
     @loop.join
   end
 
-  def start_loop
-    @loop = Thread.new(&method(:loop))
+  def start_pingloop
+    @loop = Thread.new(&method(:pingloop))
   end
 
-  def loop
+  def pingloop
     @last_checked = Fluent::Engine.now
-    while true
+    loop do
       sleep 0.5
       if Fluent::Engine.now - @last_checked >= @interval
         @last_checked = Fluent::Engine.now
-        Fluent::Engine.emit(@tag, Fluent::Engine.now, {'payload' => @payload})
+        Fluent::Engine.emit(@tag, Fluent::Engine.now, {'data' => @data})
       end
     end
   end
