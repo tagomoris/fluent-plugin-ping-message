@@ -15,4 +15,6 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "fluentd"
   gem.add_runtime_dependency "fluentd"
+  gem.add_development_dependency "fluent-mixin-config-placeholders"
+  gem.add_runtime_dependency "fluent-mixin-config-placeholders"
 end
