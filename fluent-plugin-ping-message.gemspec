@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name          = "fluent-plugin-ping-message"
-  gem.version       = "0.0.3"
+  gem.version       = "0.0.4"
   gem.authors       = ["TAGOMORI Satoshi"]
   gem.email         = ["tagomoris@gmail.com"]
   gem.description   = %q{for heartbeat monitoring of Fluentd processes}
