@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name          = "fluent-plugin-ping-message"
-  gem.version       = "0.0.2"
+  gem.version       = "0.0.3"
   gem.authors       = ["TAGOMORI Satoshi"]
   gem.email         = ["tagomoris@gmail.com"]
   gem.description   = %q{for heartbeat monitoring of Fluentd processes}
-  gem.summary       = %q{Fluentd plugin to send ping message}
+  gem.summary       = %q{Fluentd plugin to send/check ping messages}
   gem.homepage      = "https://github.com/tagomoris/fluent-plugin-ping-message"
 
   gem.files         = `git ls-files`.split($\)
