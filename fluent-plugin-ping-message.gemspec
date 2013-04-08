@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name          = "fluent-plugin-ping-message"
-  gem.version       = "0.0.5"
+  gem.version       = "0.1.0"
   gem.authors       = ["TAGOMORI Satoshi"]
   gem.email         = ["tagomoris@gmail.com"]
   gem.description   = %q{for heartbeat monitoring of Fluentd processes}
@@ -13,8 +13,6 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_development_dependency "fluentd"
   gem.add_runtime_dependency "fluentd"
-  gem.add_development_dependency "fluent-mixin-config-placeholders"
   gem.add_runtime_dependency "fluent-mixin-config-placeholders"
 end
