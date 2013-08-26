@@ -7,6 +7,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{for heartbeat monitoring of Fluentd processes}
   gem.summary       = %q{Fluentd plugin to send/check ping messages}
   gem.homepage      = "https://github.com/tagomoris/fluent-plugin-ping-message"
+  gem.license       = "APLv2"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
