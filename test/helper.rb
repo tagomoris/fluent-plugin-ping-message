@@ -22,7 +22,8 @@ unless ENV.has_key?('VERBOSE')
   $log = nulllogger
 end
 
-require 'fluent/plugin/out_webhdfs'
+require 'fluent/plugin/in_ping_message'
+require 'fluent/plugin/out_ping_message_checker'
 
 class Test::Unit::TestCase
 end

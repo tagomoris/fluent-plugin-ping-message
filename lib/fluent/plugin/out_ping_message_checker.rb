@@ -81,15 +81,21 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
         Fluent::Engine.emit(@tag, Fluent::Engine.now, {@data_field => data})
       end
     end
+
+    notifications
   end
 
   def watch
     @last_checked = Fluent::Engine.now
     loop do
       sleep 1
-      if Fluent::Engine.now - @last_checked >= @check_interval
-        check_and_flush()
-        @last_checked = Fluent::Engine.now
+      begin
+        if Fluent::Engine.now - @last_checked >= @check_interval
+          check_and_flush()
+          @last_checked = Fluent::Engine.now
+        end
+      rescue => e
+        $log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
       end
     end
   end
@@ -103,5 +109,7 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
     update_state(datalist)
 
     chain.next
+  rescue => e
+    $log.warn "out_ping_message_checker: #{e.message} #{e.class} #{e.backtrace.first}"
   end
 end
