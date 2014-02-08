@@ -1,6 +1,6 @@
-# fluent-plugin-ping-message, a plugin for [Fluentd](http://fluentd.org)
+# fluent-plugin-ping-message
 
-Fluentd plugins:
+[Fluentd](http://fluentd.org) plugins:
 
 * to generate ping messages for monitoring of heatbeats
 * to check ping messages not arrived, and emits notifications
