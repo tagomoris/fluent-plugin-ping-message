@@ -1,4 +1,4 @@
-# fluent-plugin-ping-message
+# fluent-plugin-ping-message, a plugin for [Fluentd](http://fluentd.org)
 
 Fluentd plugins:
 
