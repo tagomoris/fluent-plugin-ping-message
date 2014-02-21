@@ -3,6 +3,11 @@ require 'fluent/mixin/config_placeholders'
 class Fluent::PingMessageInput < Fluent::Input
   Fluent::Plugin.register_input('ping_message', self)
 
+  # Define `log` method for v0.10.42 or earlier
+  unless method_defined?(:log)
+    define_method("log") { $log }
+  end
+
   include Fluent::Mixin::ConfigPlaceholders
 
   config_param :tag, :string, :default => 'ping'

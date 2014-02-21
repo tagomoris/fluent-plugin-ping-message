@@ -3,6 +3,11 @@ require 'fluent/mixin/config_placeholders'
 class Fluent::PingMessageCheckerOutput < Fluent::Output
   Fluent::Plugin.register_output('ping_message_checker', self)
 
+  # Define `log` method for v0.10.42 or earlier
+  unless method_defined?(:log)
+    define_method("log") { $log }
+  end
+
   config_param :data_field, :string, :default => 'data'
 
   config_param :tag, :string
@@ -95,7 +100,7 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
           @last_checked = Fluent::Engine.now
         end
       rescue => e
-        $log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
+        log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
       end
     end
   end
@@ -110,6 +115,6 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
 
     chain.next
   rescue => e
-    $log.warn "out_ping_message_checker: #{e.message} #{e.class} #{e.backtrace.first}"
+    log.warn "out_ping_message_checker: #{e.message} #{e.class} #{e.backtrace.first}"
   end
 end
