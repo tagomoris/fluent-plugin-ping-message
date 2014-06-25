@@ -17,7 +17,7 @@ To generate 1 ping message per 60seconds(default):
     #=> tag: 'ping'
     #   message: {'data' => 'your.hostname.local'}
 
-Change ping message interval into 30 seconds, and fix tag and 'data':
+Change ping message interval into 30 seconds, and fix `tag` and `data`:
 
     <source>
       type ping_message
@@ -39,11 +39,10 @@ To receive ping messages and checks ping message in-arrival, use `type ping_mess
       notification_times 3   # 3 times by default
     </match>
 
-With this configuration, this plugin save the list of ping messages' 'data' field values. And then, at the time of ping message missing, notification message emitted with `tag`.
+With this configuration, this plugin save the list of ping messages' `data` field values. And then, at the time of ping message missing, notification message emitted with the specified `tag` and record like `{"data": "failing.hostname.local"}`.
 
 ## TODO
 
-* add feature to output ping messages list
 * patches welcome!
 
 ## Copyright
