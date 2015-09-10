@@ -83,7 +83,7 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
     
     if @notifications
       notifications.each do |data|
-        Fluent::Engine.emit(@tag, Fluent::Engine.now, {@data_field => data})
+        router.emit(@tag, Fluent::Engine.now, {@data_field => data})
       end
     end
 
