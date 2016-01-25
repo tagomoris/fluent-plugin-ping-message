@@ -12,7 +12,7 @@
 To generate 1 ping message per 60seconds(default):
 
     <source>
-      type ping_message
+      @type ping_message
     </source>
     #=> tag: 'ping'
     #   message: {'data' => 'your.hostname.local'}
@@ -20,7 +20,7 @@ To generate 1 ping message per 60seconds(default):
 Change ping message interval into 30 seconds, and fix `tag` and `data`:
 
     <source>
-      type ping_message
+      @type ping_message
       tag ping.webserver
       interval 30
       data ping message from ${hostname}
@@ -30,10 +30,10 @@ Change ping message interval into 30 seconds, and fix `tag` and `data`:
 
 ### PingMessageCheckerOutput
 
-To receive ping messages and checks ping message in-arrival, use `type ping_message_checker`:
+To receive ping messages and checks ping message in-arrival, use `@type ping_message_checker`:
 
     <match ping.**>
-      type ping_message_checker
+      @type ping_message_checker
       tag missing.ping
       check_interval  3600   # 1hour by default
       notification_times 3   # 3 times by default
