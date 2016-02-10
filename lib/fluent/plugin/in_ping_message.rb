@@ -13,7 +13,8 @@ class Fluent::PingMessageInput < Fluent::Input
   config_param :tag, :string, :default => 'ping'
   config_param :interval, :integer, :default => 60
   config_param :data, :string, :default => `hostname`.chomp
-
+  config_param :timestamp, :bool, default: false
+  
   def start
     super
     start_pingloop
@@ -35,7 +36,11 @@ class Fluent::PingMessageInput < Fluent::Input
       sleep 0.5
       if Fluent::Engine.now - @last_checked >= @interval
         @last_checked = Fluent::Engine.now
-        Fluent::Engine.emit(@tag, Fluent::Engine.now, {'data' => @data})
+        if @timestamp
+          Fluent::Engine.emit(@tag, Fluent::Engine.now, {'data' => @data, 'time' => Time.now})
+        else
+          Fluent::Engine.emit(@tag, Fluent::Engine.now, {'data' => @data})
+        end
       end
     end
   end
