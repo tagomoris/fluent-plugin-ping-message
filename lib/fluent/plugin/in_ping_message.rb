@@ -35,7 +35,7 @@ class Fluent::PingMessageInput < Fluent::Input
       sleep 0.5
       if Fluent::Engine.now - @last_checked >= @interval
         @last_checked = Fluent::Engine.now
-        Fluent::Engine.emit(@tag, Fluent::Engine.now, {'data' => @data})
+        router.emit(@tag, Fluent::Engine.now, {'data' => @data})
       end
     end
   end
