@@ -14,6 +14,11 @@ class Fluent::PingMessageInput < Fluent::Input
   config_param :interval, :integer, :default => 60
   config_param :data, :string, :default => `hostname`.chomp
 
+  # Define `router` method of v0.12 to support v0.10.57 or earlier
+  unless method_defined?(:router)
+    define_method("router") { Engine }
+  end
+
   def start
     super
     start_pingloop
@@ -35,7 +40,7 @@ class Fluent::PingMessageInput < Fluent::Input
       sleep 0.5
       if Fluent::Engine.now - @last_checked >= @interval
         @last_checked = Fluent::Engine.now
-        Fluent::Engine.emit(@tag, Fluent::Engine.now, {'data' => @data})
+        router.emit(@tag, Fluent::Engine.now, {'data' => @data})
       end
     end
   end
