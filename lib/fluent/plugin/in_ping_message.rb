@@ -14,6 +14,11 @@ class Fluent::PingMessageInput < Fluent::Input
   config_param :interval, :integer, :default => 60
   config_param :data, :string, :default => `hostname`.chomp
 
+  # Define `router` method of v0.12 to support v0.10.57 or earlier
+  unless method_defined?(:router)
+    define_method("router") { Engine }
+  end
+
   def start
     super
     start_pingloop
