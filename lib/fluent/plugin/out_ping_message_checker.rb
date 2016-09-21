@@ -4,7 +4,7 @@ require 'fluent/mixin/config_placeholders'
 class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
   Fluent::Plugin.register_output('ping_message_checker', self)
 
-  helpers :event_emitter
+  helpers :event_emitter, :timer
 
   # Define `log` method for v0.10.42 or earlier
   unless method_defined?(:log)
@@ -48,12 +48,11 @@ class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
 
   def shutdown
     super
-    @watcher.terminate
-    @watcher.join
   end
 
   def start_watch
-    @watcher = Thread.new(&method(:watch))
+    @last_checked = Fluent::Engine.now
+    timer_execute(:out_ping_messager_chacker_timer, 1, &method(:watch))
   end
 
   def update_state(list)
@@ -99,17 +98,13 @@ class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
   end
 
   def watch
-    @last_checked = Fluent::Engine.now
-    loop do
-      sleep 1
-      begin
-        if Fluent::Engine.now - @last_checked >= @check_interval
-          check_and_flush()
-          @last_checked = Fluent::Engine.now
-        end
-      rescue => e
-        log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
+    begin
+      if Fluent::Engine.now - @last_checked >= @check_interval
+        check_and_flush()
+        @last_checked = Fluent::Engine.now
       end
+    rescue => e
+      log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
     end
   end
 
