@@ -6,16 +6,6 @@ class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
 
   helpers :event_emitter, :timer
 
-  # Define `log` method for v0.10.42 or earlier
-  unless method_defined?(:log)
-    define_method("log") { $log }
-  end
-
-  # Define `router` method of v0.12 to support v0.10.57 or earlier
-  unless method_defined?(:router)
-    define_method("router") { Fluent::Engine }
-  end
-
   config_param :data_field, :string, :default => 'data'
 
   config_param :tag, :string
