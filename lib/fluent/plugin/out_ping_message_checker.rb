@@ -1,7 +1,10 @@
+require 'fluent/plugin/output'
 require 'fluent/mixin/config_placeholders'
 
-class Fluent::PingMessageCheckerOutput < Fluent::Output
+class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
   Fluent::Plugin.register_output('ping_message_checker', self)
+
+  helpers :event_emitter
 
   # Define `log` method for v0.10.42 or earlier
   unless method_defined?(:log)
@@ -110,15 +113,13 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
     end
   end
 
-  def emit(tag, es, chain)
+  def process(tag, es)
     datalist = []
     es.each do |time,record|
       datalist.push record[@data_field] if @exclude_regex.nil? or not @exclude_regex.match(record[@data_field])
     end
     datalist.uniq!
     update_state(datalist)
-
-    chain.next
   rescue => e
     log.warn "out_ping_message_checker: #{e.message} #{e.class} #{e.backtrace.first}"
   end
