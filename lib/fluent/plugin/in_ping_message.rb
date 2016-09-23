@@ -1,3 +1,4 @@
+require 'fluent/input'
 require 'fluent/mixin/config_placeholders'
 
 class Fluent::PingMessageInput < Fluent::Input
