@@ -1,17 +1,10 @@
+require 'fluent/plugin/output'
 require 'fluent/mixin/config_placeholders'
 
-class Fluent::PingMessageCheckerOutput < Fluent::Output
+class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
   Fluent::Plugin.register_output('ping_message_checker', self)
 
-  # Define `log` method for v0.10.42 or earlier
-  unless method_defined?(:log)
-    define_method("log") { $log }
-  end
-
-  # Define `router` method of v0.12 to support v0.10.57 or earlier
-  unless method_defined?(:router)
-    define_method("router") { Fluent::Engine }
-  end
+  helpers :event_emitter, :timer
 
   config_param :data_field, :string, :default => 'data'
 
@@ -45,12 +38,11 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
 
   def shutdown
     super
-    @watcher.terminate
-    @watcher.join
   end
 
   def start_watch
-    @watcher = Thread.new(&method(:watch))
+    @last_checked = Fluent::Engine.now
+    timer_execute(:out_ping_messager_chacker_timer, 1, &method(:watch))
   end
 
   def update_state(list)
@@ -96,29 +88,23 @@ class Fluent::PingMessageCheckerOutput < Fluent::Output
   end
 
   def watch
-    @last_checked = Fluent::Engine.now
-    loop do
-      sleep 1
-      begin
-        if Fluent::Engine.now - @last_checked >= @check_interval
-          check_and_flush()
-          @last_checked = Fluent::Engine.now
-        end
-      rescue => e
-        log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
+    begin
+      if Fluent::Engine.now - @last_checked >= @check_interval
+        check_and_flush()
+        @last_checked = Fluent::Engine.now
       end
+    rescue => e
+      log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
     end
   end
 
-  def emit(tag, es, chain)
+  def process(tag, es)
     datalist = []
     es.each do |time,record|
       datalist.push record[@data_field] if @exclude_regex.nil? or not @exclude_regex.match(record[@data_field])
     end
     datalist.uniq!
     update_state(datalist)
-
-    chain.next
   rescue => e
     log.warn "out_ping_message_checker: #{e.message} #{e.class} #{e.backtrace.first}"
   end
