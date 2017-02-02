@@ -16,10 +16,10 @@ class PingMessageCheckerOutputTest < Test::Unit::TestCase
 
   def test_configure
     assert_nothing_raised {
-      d = create_driver(CONFIG)
+      create_driver(CONFIG)
     }
     assert_raise(Fluent::ConfigError) {
-      d = create_driver('')
+      create_driver('')
     }
   end
 
