@@ -13,20 +13,63 @@ To generate 1 ping message per 60seconds(default):
 
     <source>
       @type ping_message
+      @label @heartbeat_events
     </source>
-    #=> tag: 'ping'
-    #   message: {'data' => 'your.hostname.local'}
+    
+    <label @heartbeat_events>
+      #=> tag: 'ping'
+      #   message: {'data' => 'your.hostname.local'}
+      <match ping>
+        # send hosts w/ ping_message_checker
+      </match>
+    </label>
 
 Change ping message interval into 30 seconds, and fix `tag` and `data`:
 
     <source>
       @type ping_message
+      @label @heartbeat_events
       tag ping.webserver
       interval 30
       data ping message from ${hostname}
     </source>
-    #=> tag: 'ping.webserver'
-    #   message: {'data' => 'ping message from your.hostname.local'}
+    
+    <label @heartbeat_events>
+      #=> tag: 'ping.webserver'
+      #   message: {'data' => 'ping message from your.hostname.local'}
+    </label>
+
+`<inject>` section is available to include hostname key or timestamp (unixtime, float or string).
+
+    <source>
+      @type ping_message
+      @label @heartbeat_events
+      tag      ping
+      interval 30
+      data     "this is ping message"
+      <inject>
+        hostname_key host     # {"host": "my.hostname.example.com"}
+        time_key     time
+        time_type    unixtime # {"time": 1486014439}
+      </inject>
+    </source>
+
+Example using string time format in specified time zone:
+
+    <source>
+      @type ping_message
+      @label @heartbeat_events
+      tag      ping
+      interval 30
+      data     "this is ping message"
+      <inject>
+        hostname_key host     # {"host": "my.hostname.example.com"}
+        time_key     time
+        time_type    string
+        time_format  "%Y-%m-%d %H:%M:%S" # {"time": "2017-02-01 14:50:38"}
+        timezone     -0700    # or "localtime yes" / "localtime no" (UTC), ...
+      </inject>
+    </source>
 
 ### PingMessageCheckerOutput
 
