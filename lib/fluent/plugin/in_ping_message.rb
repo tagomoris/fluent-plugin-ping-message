@@ -1,35 +1,35 @@
 require 'fluent/plugin/input'
-require 'fluent/mixin/config_placeholders'
+require 'socket'
 
 class Fluent::Plugin::PingMessageInput < Fluent::Plugin::Input
   Fluent::Plugin.register_input('ping_message', self)
 
-  helpers :timer
+  helpers :timer, :inject
 
-  include Fluent::Mixin::ConfigPlaceholders
+  config_param :tag, :string, default: 'ping'
+  config_param :interval, :integer, default: 60
+  config_param :data, :string, default: Socket.gethostname
+  config_param :hostname, :string, default: nil
 
-  config_param :tag, :string, :default => 'ping'
-  config_param :interval, :integer, :default => 60
-  config_param :data, :string, :default => `hostname`.chomp
+  def configure(conf)
+    super
+
+    if @data.include?('${hostname}')
+      @hostname ||= Socket.gethostname
+      @data.gsub!('${hostname}', @hostname)
+    end
+  end
+
+  def multi_workers_ready?
+    true
+  end
 
   def start
     super
-    start_pingloop
-  end
-
-  def shutdown
-    super
-  end
-
-  def start_pingloop
-    @last_checked = Fluent::Engine.now
-    timer_execute(:in_ping_message_pingpong, 0.5, &method(:pingloop))
-  end
-
-  def pingloop
-    if Fluent::Engine.now - @last_checked >= @interval
-      @last_checked = Fluent::Engine.now
-      router.emit(@tag, Fluent::Engine.now, {'data' => @data})
+    timer_execute(:in_ping_message_pingpong, @interval) do
+      now = Fluent::Engine.now
+      record = inject_values_to_record(@tag, now, {'data' => @data})
+      router.emit(@tag, now, record)
     end
   end
 end

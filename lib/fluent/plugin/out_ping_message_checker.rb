@@ -1,28 +1,25 @@
 require 'fluent/plugin/output'
-require 'fluent/mixin/config_placeholders'
 
 class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
   Fluent::Plugin.register_output('ping_message_checker', self)
 
   helpers :event_emitter, :timer
 
-  config_param :data_field, :string, :default => 'data'
-
   config_param :tag, :string
+  config_param :data_field, :string, default: 'data'
+  config_param :notifications, :bool, default: true
 
-  config_param :notifications, :bool, :default => true
-  # config_param :report_list, :bool, :default => false # not implemented now
-
-  config_param :check_interval, :integer, :default => 3600
-  config_param :notification_times, :integer, :default => 3
-
-  config_param :exclude_pattern, :string, :default => nil
-
-  include Fluent::Mixin::ConfigPlaceholders
+  config_param :check_interval, :time, default: 3600
+  config_param :notification_times, :integer, default: 3
+  config_param :exclude_pattern, :string, default: nil
 
   def configure(conf)
     super
     @exclude_regex = @exclude_pattern ? Regexp.compile(@exclude_pattern) : nil
+  end
+
+  def multi_workers_ready?
+    true
   end
 
   def start
@@ -33,16 +30,26 @@ class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
     #  0: checked in this term
     # 1,2,...: counts of ping missing notifications
     @mutex = Mutex.new
-    start_watch
+    timer_execute(:out_ping_messager_chacker_timer, @check_interval) do
+      begin
+        check_and_flush
+      rescue => e
+        log.warn "unexpected error", error: e
+        log.warn_backtrace
+      end
+    end
   end
 
-  def shutdown
-    super
-  end
-
-  def start_watch
-    @last_checked = Fluent::Engine.now
-    timer_execute(:out_ping_messager_chacker_timer, 1, &method(:watch))
+  def process(tag, es)
+    datalist = []
+    es.each do |time,record|
+      datalist.push record[@data_field] if @exclude_regex.nil? or not @exclude_regex.match(record[@data_field])
+    end
+    datalist.uniq!
+    update_state(datalist)
+  rescue => e
+    log.warn "unexpected error while processing events", error: e
+    log.warn_backtrace
   end
 
   def update_state(list)
@@ -77,7 +84,7 @@ class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
         end
       end
     end
-    
+
     if @notifications
       notifications.each do |data|
         router.emit(@tag, Fluent::Engine.now, {@data_field => data})
@@ -85,27 +92,5 @@ class Fluent::Plugin::PingMessageCheckerOutput < Fluent::Plugin::Output
     end
 
     notifications
-  end
-
-  def watch
-    begin
-      if Fluent::Engine.now - @last_checked >= @check_interval
-        check_and_flush()
-        @last_checked = Fluent::Engine.now
-      end
-    rescue => e
-      log.warn "out_ping_message_checker: #{e.class} #{e.message} #{e.backtrace.first}"
-    end
-  end
-
-  def process(tag, es)
-    datalist = []
-    es.each do |time,record|
-      datalist.push record[@data_field] if @exclude_regex.nil? or not @exclude_regex.match(record[@data_field])
-    end
-    datalist.uniq!
-    update_state(datalist)
-  rescue => e
-    log.warn "out_ping_message_checker: #{e.message} #{e.class} #{e.backtrace.first}"
   end
 end
